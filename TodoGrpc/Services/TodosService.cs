@@ -34,5 +34,32 @@ namespace TodoGrpc.Services
                 Id = todoItem.Id
             });
         }
+
+        public override async Task<ReadToDoResponse> ReadToDo(ReadToDoRequest request, ServerCallContext context)
+        {
+            try
+            {
+                if (request.Id < 0)
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Id must be grater than 0"));
+
+                ToDoItem? todoItem = _dbContext.ToDoItems.FirstOrDefault(x => x.Id == request.Id);
+
+                if (todoItem == null)
+                    throw new RpcException(new Status(StatusCode.NotFound, "Todo item not found"));
+
+                return await Task.FromResult(new ReadToDoResponse
+                {
+                    Id = todoItem.Id,
+                    Title = todoItem.Title,
+                    Description = todoItem.Description
+                });
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            
+        }
     }
 }
